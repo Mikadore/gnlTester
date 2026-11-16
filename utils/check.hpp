@@ -1,5 +1,6 @@
 #ifndef CHECK_HPP
 # define CHECK_HPP
+# include <stddef.h>
 # include <iostream>
 # include <string>
 # include <sstream>
@@ -16,7 +17,9 @@
 # define title(s) {std::ostringstream ss; ss << FG_LGRAY << s; write(1, ss.str().c_str(), ss.str().size());}
 using namespace std;
 
-void check(bool succes);
+void check(bool succes, const char *detail = NULL);
 void mcheck(void * p, size_t required_size);
+
+extern int testFailures;
 
 #endif

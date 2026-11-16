@@ -14,6 +14,7 @@ extern "C"
 #include "sigsegv.hpp"
 #include "check.hpp"
 #include "gnl.hpp"
+#include "faults.hpp"
 
 //https://github.com/arhuaco/ram-is-mine/blob/master/src/ram_is_mine.c
 extern bool is_initializing;
@@ -50,14 +51,15 @@ int main(void)
 	/* 13 */ gnl(fd[0], NULL);
 	/* 14 */ gnl(fd[1], NULL);
 	/* 15 */ gnl(fd[2], NULL);
-	showLeaks();
+	if (!showLeaks()) check(false);
 
 	fd[3] = open("files/nl", O_RDWR);
 	/* 16 */ gnl(1006, NULL);
 	/* 17 */ gnl(fd[3], "\n");
 	/* 18 */ gnl(1007, NULL);
 	/* 19 */ gnl(fd[3], NULL);
-	showLeaks();
+	if (!showLeaks()) check(false);
+	runFaultTests();
 	write(1, "\n", 1);
-	return (0);
+	return (testFailures ? EXIT_FAILURE : EXIT_SUCCESS);
 }

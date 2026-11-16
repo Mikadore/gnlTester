@@ -14,6 +14,7 @@ extern "C"
 #include "sigsegv.hpp"
 #include "check.hpp"
 #include "gnl.hpp"
+#include "faults.hpp"
 
 //https://github.com/arhuaco/ram-is-mine/blob/master/src/ram_is_mine.c
 extern bool is_initializing;
@@ -152,6 +153,7 @@ int main(void)
 		 /* 8 */ gnl(0, "\n");
 		 /* 9 */ gnl(0, "01234567890123456789012345678901234567890\n");
 		 /* 10 */ gnl(0, NULL);) close(fd);
+	runFaultTests();
 	write(1, "\n", 1);
-	return (0);
+	return (testFailures ? EXIT_FAILURE : EXIT_SUCCESS);
 }

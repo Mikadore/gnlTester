@@ -1,14 +1,17 @@
 #include "check.hpp"
 #include "leaks.hpp"
 
-extern int iTest;
+#include <unistd.h>
 
-void check(bool succes)
+extern int iTest;
+int testFailures = 0;
+
+void check(bool succes, const char *detail)
 {
 	if (succes)
 		{std::ostringstream ss; ss << FG_GREEN << iTest << ".OK "; write(1, ss.str().c_str(), ss.str().size());}
 	else
-		{std::ostringstream ss; ss << FG_RED << iTest << ".KO "; write(1, ss.str().c_str(), ss.str().size());}
+		{std::ostringstream ss; ss << FG_RED << iTest << ".KO "; if (detail) ss << "[" << detail << "] "; write(1, ss.str().c_str(), ss.str().size()); testFailures++;}
 }
 
 void mcheck(void * p, size_t required_size)
@@ -22,6 +25,6 @@ void mcheck(void * p, size_t required_size)
 	#endif
 		{std::ostringstream ss; ss << FG_GREEN << iTest << ".MOK "; write(1, ss.str().c_str(), ss.str().size());}
 	else
-		{std::ostringstream ss; ss << FG_RED << iTest << ".MKO "; write(1, ss.str().c_str(), ss.str().size());}
+		{std::ostringstream ss; ss << FG_RED << iTest << ".MKO "; write(1, ss.str().c_str(), ss.str().size()); testFailures++;}
 	free(p2);
 }
