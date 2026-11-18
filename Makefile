@@ -38,7 +38,7 @@ BONUS					= bonus
 
 SANITIZER_FLAGS			= -fsanitize=address,undefined -O0 -g3
 CFLAGS					= $(SANITIZER_FLAGS) -Wall -Wextra -Werror
-CPPFLAGS				= $(SANITIZER_FLAGS) -ldl -std=c++11 -I utils/ -I.. -Wno-everything
+CPPFLAGS				= $(SANITIZER_FLAGS) -ldl -std=c++11 -I utils/ -I.. -Wno-everything -DGNLTEST_SANITIZED
 
 # Sanitized binaries run directly; AddressSanitizer provides leak detection.
 VALGRIND =

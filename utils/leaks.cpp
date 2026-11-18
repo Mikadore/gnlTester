@@ -1,6 +1,13 @@
 #include <cstdio>
 #include "leaks.hpp"
 
+#ifdef GNLTEST_SANITIZED
+bool is_initializing;
+
+void showLeaks(void)
+{
+}
+#else
 std::vector<ptr> mallocList;
 
 static void *(*libc_malloc)(size_t) = NULL;
@@ -78,3 +85,4 @@ void showLeaks(void)
 	}
 	mallocList.clear();
 }
+#endif
