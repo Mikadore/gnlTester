@@ -1,5 +1,5 @@
 # gnlTester (2019+)
-Tester for the get next line project of 42 school (with personalized leaks checking on mac, using valgrind on linux)  
+Tester for the get next line project of 42 school. Test binaries use AddressSanitizer, UndefinedBehaviorSanitizer, and AddressSanitizer leak detection.
 Clone this tester in your get_next_line repository. (works on linux and mac, handles sigsegv on all tests, and timeout on mandatory part)  
 ![alt text](https://i.imgur.com/uupv1UH.png)
 
@@ -20,12 +20,15 @@ On mac terminal:
 # Commands
 make m = launch mandatory tests  
 make b = launch bonus tests  
-make a = launch mandatory tests + bonus tests 
+make a = launch mandatory tests + bonus tests + injected read-error tests
+make readErrors = run only the injected read-error tests
 
 make dockerm = launch mandatory tests in linux container  
 make dockerb = launch bonus tests in linux container  
 make dockera = launch mandatory tests + bonus tests in linux container  
 Thanks to gurival- for the docker idea (https://github.com/grouville/valgrind_42)  
+
+The read-error tests wrap `read()` for the GNL sources and inject `EIO` failures at deterministic pseudo-random intervals. They use open file descriptors and run against both mandatory and bonus implementations.
 
 You can change the timeout value in Makefile    
 ![alt text](https://i.imgur.com/jUimpaC.png)  

@@ -36,13 +36,24 @@ BONUS					= bonus
 42BONUS					= $(addprefix 42, $(BONUS))
 10MBONUS				= $(addprefix 10M, $(BONUS))
 
-CFLAGS					= -g3 -Wall -Wextra -Werror
-CPPFLAGS				= -g3 -ldl -std=c++11 -I utils/ -I.. -Wno-everything
+SANITIZER_FLAGS			= -fsanitize=address,undefined -O0 -g3
+CFLAGS					= $(SANITIZER_FLAGS) -Wall -Wextra -Werror
+CPPFLAGS				= $(SANITIZER_FLAGS) -ldl -std=c++11 -I utils/ -I.. -Wno-everything
 
-UNAME = $(shell uname -s)
-ifeq ($(UNAME), Linux)
-    VALGRIND = valgrind -q --leak-check=full
-endif
+# Sanitized binaries run directly; AddressSanitizer provides leak detection.
+VALGRIND =
+
+readErrors:
+	@gcc $(CFLAGS) -c utils/read_failure.c -o read_failure.o
+	@gcc -D BUFFER_SIZE=42 -Dread=gnl_test_read $(CFLAGS) -c ../get_next_line.c -o get_next_line.readerror.o
+	@gcc -D BUFFER_SIZE=42 -Dread=gnl_test_read $(CFLAGS) -c ../get_next_line_utils.c -o get_next_line_utils.readerror.o
+	@clang++ -D BUFFER_SIZE=42 $(CPPFLAGS) tests/read_errors.cpp read_failure.o get_next_line.readerror.o get_next_line_utils.readerror.o -o gnlTest_read_error_mandatory
+	@./gnlTest_read_error_mandatory
+	@gcc -D BUFFER_SIZE=42 -Dread=gnl_test_read $(CFLAGS) -c ../get_next_line_bonus.c -o get_next_line_bonus.readerror.o
+	@gcc -D BUFFER_SIZE=42 -Dread=gnl_test_read $(CFLAGS) -c ../get_next_line_utils_bonus.c -o get_next_line_utils_bonus.readerror.o
+	@clang++ -D BUFFER_SIZE=42 -DTEST_BONUS $(CPPFLAGS) tests/read_errors.cpp read_failure.o get_next_line_bonus.readerror.o get_next_line_utils_bonus.readerror.o -o gnlTest_read_error_bonus
+	@./gnlTest_read_error_bonus
+	@rm -f read_failure.o get_next_line.readerror.o get_next_line_utils.readerror.o get_next_line_bonus.readerror.o get_next_line_utils_bonus.readerror.o gnlTest_read_error_mandatory gnlTest_read_error_bonus
 
 $(1MANDATORY): 1%:
 	@gcc -D BUFFER_SIZE=1 $(CFLAGS) -c ../get_next_line.c -o get_next_line.bs1.o -gdwarf-4
@@ -112,8 +123,9 @@ dockerm dockerb dockera: docker%:
 m: mandatory_start $(1MANDATORY) $(42MANDATORY) $(10MMANDATORY) cleanMandatory
 b: bonus_start $(1MBONUS) $(42MBONUS) $(10MMBONUS) $(1BONUS) $(42BONUS) $(10MBONUS) cleanBonus
 a: m b
+	@$(MAKE) readErrors
 
 fclean clean cleanMandatory cleanBonus:
 	@rm -rf $(MANDATORY_OBJS) $(BONUS_OBJS) *.o gnlTest*
 
-.PHONY:	mandatory_start m bonus_start b a fclean clean cleanMandatory cleanBonus
+.PHONY:	mandatory_start m bonus_start b a readErrors fclean clean cleanMandatory cleanBonus
